@@ -1,0 +1,6 @@
+﻿problema,filas_afectadas,decision
+Tiempo en formato Unix (UTC),todas,Convertir a hora local CDT (UTC−5)
+10 lecturas < 37 °C de C09 (25/07 07:20–07:29); mínima 21.9 °C,10,Excluir: falla del sensor
+Columna temperature_F con valores en °C (14–32),0,Renombrar a temperatura_aire_C
+"Días incompletos: 21/07, 04/08",10720,Para totales diarios usar solo los 13 días completos
+Lecturas UWB vacías (4.9 %),39024,Descartar esas filas
