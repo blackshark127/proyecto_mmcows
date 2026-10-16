@@ -26,12 +26,12 @@ Autor: **Rafael Said De la Paz Coronado** · Profesor: Dr. Ricardo Emmanuel Reye
 ## Cómo reproducirlo
 
 ```bash
-pip install -r requirements.txt
-python ejecutar_todo.py                 # busca los datos en datos/mmcows/
-python ejecutar_todo.py C:/ruta/a/mmcows # o indicando la ruta
+py -m pip install -r requirements.txt
+py ejecutar_todo.py                 # busca los datos en datos/mmcows/
+py ejecutar_todo.py C:/ruta/a/mmcows # o indicando la ruta
 ```
 
-En unos 15 segundos regenera todo: las figuras de `figuras/`, las tablas de `bi/` y las cifras de `salidas/`.
+La ejecución regenera: las figuras de `figuras/`, las tablas de `bi/` y las cifras de `salidas/`.
 Para seguir el análisis paso a paso con explicaciones, abre **`notebooks/Proyecto_MmCows.ipynb`** (Jupyter, VS Code o Google Colab).
 
 ## Estructura
@@ -78,8 +78,24 @@ proyecto_mmcows/
 | `figuras/avance2/fig1…fig6` | matplotlib (estática) | EDA del Avance 2: distribución, relación con el THI, ciclo diario, serie de tiempo, descanso por vaca y altura del collar |
 | `figuras/avance3/fig4_estatica_final.png` | matplotlib (estática) | ¿Cuándo se sale C09 del grupo? Versión final con anotaciones |
 | `figuras/avance3/fig4_interactiva.html` | Plotly (interactiva) | La misma pregunta para cualquier vaca: selector, detalle al pasar el cursor y zoom |
-| Dashboard en Tableau Public | Tableau (BI) | Resumen del grupo: KPIs, calor por vaca y día, y descanso por vaca con filtros. Enlace: _[pegar enlace de Tableau Public]_ |
+| Dashboard en Tableau Public | Tableau (BI) | Resumen del grupo: KPIs, calor por vaca y día, y descanso por vaca con filtros. Libro local: [`bi/Monitoreo_MmCows_final.twbx`](bi/Monitoreo_MmCows_final.twbx). Publicación en Tableau Public pendiente. |
 
 ## Referencia
 
 Vu, H., Prabhune, O. C., Raskar, U., Panditharatne, D., Chung, H., Choi, C., & Kim, Y. (2024). MmCows: A multimodal dataset for dairy cattle monitoring. *Advances in Neural Information Processing Systems, 37*, 59451–59467.
+
+## Estado y seguimiento
+
+Repositorio: https://github.com/blackshark127/proyecto_mmcows
+
+El Avance 3 incluye la versión estática, la interactiva y el tablero local de Tableau. Falta publicar el tablero y completar la captura y los enlaces del documento de entrega. El Avance 4 se definirá cuando se conozcan sus instrucciones.
+
+### Entorno Windows
+
+Uso el lanzador py. La ejecución completa terminó correctamente con pandas, numpy, matplotlib y plotly. La instalación completa de requirements.txt en Python 3.15 encontró un error de compilación de PyYAML, relacionado con las dependencias del notebook. Para regenerar las figuras puede instalarse el conjunto básico con:
+
+    py -m pip install pandas numpy matplotlib plotly
+    py ejecutar_todo.py C:/ruta/a/sensor_data
+
+Los CSV de bi son agregaciones derivadas para Tableau. Los archivos originales de sensor_data no se incluyen.
+
