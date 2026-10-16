@@ -1,0 +1,7 @@
+# Los datos de MmCows no se suben (licencia académica, ver datos/README.md)
+datos/mmcows/
+main_data/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.DS_Store

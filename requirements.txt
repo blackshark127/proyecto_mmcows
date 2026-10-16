@@ -1,0 +1,7 @@
+# Probado con Python 3.10 a 3.15
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.10      # boxplot(orientation=...) requiere 3.10
+plotly>=5.20
+# Para abrir y ejecutar el notebook
+jupyter
