@@ -88,11 +88,11 @@ Vu, H., Prabhune, O. C., Raskar, U., Panditharatne, D., Chung, H., Choi, C., & K
 
 Repositorio: https://github.com/blackshark127/proyecto_mmcows
 
-El Avance 3 incluye la versión estática, la interactiva y el tablero local de Tableau. Falta publicar el tablero y completar la captura y los enlaces del documento de entrega. El Avance 4 se definirá cuando se conozcan sus instrucciones.
+Link para acceder a las visualizaciones de tableau
 
 ### Entorno Windows
 
-Uso el lanzador py. La ejecución completa terminó correctamente con pandas, numpy, matplotlib y plotly. La instalación completa de requirements.txt en Python 3.15 encontró un error de compilación de PyYAML, relacionado con las dependencias del notebook. Para regenerar las figuras puede instalarse el conjunto básico con:
+Se usa  py. para que la ejecución completa terminó correctamente con pandas, numpy, matplotlib y plotly. La instalación completa de requirements.txt en Python 3.15 encontró un error de compilación de PyYAML, relacionado con las dependencias del notebook. Para regenerar las figuras puede instalarse el conjunto básico con:
 
     py -m pip install pandas numpy matplotlib plotly
     py ejecutar_todo.py C:/ruta/a/sensor_data
