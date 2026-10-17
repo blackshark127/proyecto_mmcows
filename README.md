@@ -88,7 +88,8 @@ Vu, H., Prabhune, O. C., Raskar, U., Panditharatne, D., Chung, H., Choi, C., & K
 
 Repositorio: https://github.com/blackshark127/proyecto_mmcows
 
-Link para acceder a las visualizaciones de tableau
+Link para acceder a las visualizaciones de tableau:
+https://public.tableau.com/app/profile/rafael.de.la.paz/viz/Monitoreo_MmCows_Rafasaid/Monitoreodelgrupo? 
 
 ### Entorno Windows
 
