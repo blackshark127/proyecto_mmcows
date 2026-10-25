@@ -78,7 +78,8 @@ proyecto_mmcows/
 | `figuras/avance2/fig1…fig6` | matplotlib (estática) | EDA del Avance 2: distribución, relación con el THI, ciclo diario, serie de tiempo, descanso por vaca y altura del collar |
 | `figuras/avance3/fig4_estatica_final.png` | matplotlib (estática) | ¿Cuándo se sale C09 del grupo? Versión final con anotaciones |
 | `figuras/avance3/fig4_interactiva.html` | Plotly (interactiva) | La misma pregunta para cualquier vaca: selector, detalle al pasar el cursor y zoom |
-| Dashboard en Tableau Public | Tableau (BI) | Resumen del grupo: KPIs, calor por vaca y día, y descanso por vaca con filtros. Libro local: [`bi/Monitoreo_MmCows_final.twbx`](bi/Monitoreo_MmCows_final.twbx). Publicación en Tableau Public pendiente. |
+| Dashboard en Tableau Public | Tableau (BI) | Resumen del grupo: KPIs, calor por vaca y día, y descanso por vaca con filtros. Libro local: [`bi/Monitoreo_MmCows_final.twbx`](bi/Monitoreo_MmCows_final.twbx). [Ver en Tableau Public](https://public.tableau.com/app/profile/rafael.de.la.paz/viz/Monitoreo_MmCows_Rafasaid/Monitoreodelgrupo) |
+| `dashboard/index.html` | Plotly (dashboard final) | ¿Qué vaca reviso y a qué hora? Un selector de vaca cambia las 4 gráficas. [Ver en línea](https://blackshark127.github.io/proyecto_mmcows/dashboard/) |
 
 ## Referencia
 
