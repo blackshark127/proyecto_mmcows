@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitoreo MmCows</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  :root { --tinta:#222; --tenue:#666; --linea:#e5e5e5; --fondo:#fafafa; --naranja:#e07b1a; --azul:#1f5fa8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta);
+         font-family: Arial, Helvetica, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 32px; }
+  h1 { font-size: 26px; line-height: 1.2; margin: 0 0 6px; }
+  h1 .resalte { color: var(--naranja); }
+  .sub { color: var(--tenue); font-size: 14px; margin: 0 0 16px; }
+  .controles { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
+               border-top: 1px solid var(--linea); border-bottom: 1px solid var(--linea);
+               padding: 10px 0; margin-bottom: 16px; font-size: 14px; }
+  select { font-size: 15px; padding: 5px 8px; border: 1px solid #bbb; border-radius: 4px; background: #fff; }
+  .contexto { color: var(--tenue); font-size: 13px; }
+  .contexto b { color: var(--tinta); font-weight: normal; }
+  .rejilla { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .tarjeta { background: #fff; border: 1px solid var(--linea); border-radius: 6px; padding: 14px 16px; min-width: 0; }
+  .ancho2 { grid-column: span 2; } .ancho3 { grid-column: span 3; }
+  .tarjeta h2 { font-size: 15px; margin: 0 0 2px; }
+  .tarjeta p.nota { font-size: 12.5px; color: var(--tenue); margin: 0 0 6px; }
+  .secundaria h2 { color: var(--tenue); font-weight: normal; }
+  .heroe { display: flex; flex-direction: column; justify-content: center; }
+  .heroe .vaca { font-size: 15px; color: var(--tenue); }
+  .heroe .numero { font-size: 64px; font-weight: bold; color: var(--naranja); line-height: 1; margin: 6px 0; }
+  .heroe .numero small { font-size: 22px; }
+  .heroe .detalle { font-size: 15px; line-height: 1.45; }
+  .heroe .accion { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--linea); font-size: 15px; }
+  .heroe .accion b { color: var(--naranja); }
+  footer { color: var(--tenue); font-size: 12px; margin-top: 18px; line-height: 1.5; }
+  @media (max-width: 820px) {
+    .rejilla { grid-template-columns: 1fr; }
+    .ancho2, .ancho3 { grid-column: span 1; }
+    h1 { font-size: 21px; } .heroe .numero { font-size: 52px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1><span class="resalte">C09</span> es la vaca a revisar, y la hora es al atardecer</h1>
+  <p class="sub">10 vacas Holstein con collar · 21 jul – 4 ago 2023 · temperatura corporal medida cada minuto · datos: MmCows (Vu et al., 2024)</p>
+
+  <div class="controles">
+    <label>Vaca: <select id="vaca"></select></label>
+    <span class="contexto" id="contexto"></span>
+  </div>
+
+  <div class="rejilla">
+    <!-- 1. Lo más importante: número grande -->
+    <section class="tarjeta heroe">
+      <div class="vaca" id="h-vaca"></div>
+      <div class="numero" id="h-num"></div>
+      <div class="detalle" id="h-det"></div>
+      <div class="accion" id="h-acc"></div>
+    </section>
+
+    <!-- 1b. Ranking: por qué esa vaca -->
+    <section class="tarjeta ancho2">
+      <h2>Minutos con temperatura de 39.2 °C o más, por vaca</h2>
+      <p class="nota">Clic en una barra para seleccionar esa vaca.</p>
+      <div id="g-ranking"></div>
+    </section>
+
+    <!-- 2. A qué hora -->
+    <section class="tarjeta ancho2">
+      <h2 id="t-hora">¿A qué hora se calienta?</h2>
+      <p class="nota">Arriba, minutos con temperatura alta según la hora del día (los 14 días juntos). Abajo, el calor del corral (THI promedio).</p>
+      <div id="g-hora"></div>
+    </section>
+
+    <!-- 3. Contexto del grupo (secundario) -->
+    <section class="tarjeta secundaria">
+      <h2>Los días más calurosos el grupo descansa menos</h2>
+      <p class="nota" id="n-echada"></p>
+      <div id="g-echada"></div>
+    </section>
+
+    <!-- 4. Detalle para el veterinario -->
+    <section class="tarjeta ancho3 secundaria">
+      <h2 id="t-serie">Detalle para el veterinario</h2>
+      <p class="nota">Temperatura corporal (promedio móvil de 3 h) contra el rango y la mediana de las otras 9 vacas. Usa los botones o arrastra para acercar.</p>
+      <div id="g-serie"></div>
+    </section>
+  </div>
+
+  <footer>
+    Temperatura alta = 39.2 °C o más (referencia usada desde el Avance 1). THI: índice de temperatura y humedad dentro del corral.
+    Horas echada medidas con el sensor de la pata, solo en los 13 días completos.<br>
+    Rafael Said De la Paz Coronado · Visualización de Datos 2026B · TecNM / ITA · código: github.com/blackshark127/proyecto_mmcows
+  </footer>
+</main>
+
+<script>
+const D = /*__DATOS__*/null;
+const C = D.colores;
+const CONFIG = { displayModeBar: false, responsive: true };
+const BASE = { font: { family: "Arial", size: 12, color: C.tinta }, paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+               hoverlabel: { bgcolor: "#fff", bordercolor: "#ccc", font: { color: C.tinta } } };
+const ejes = (extra) => Object.assign({ gridcolor: "#efefef", linecolor: "#ccc", zeroline: false,
+                                         tickfont: { color: C.tenue } }, extra);
+const fmt = (n) => n.toLocaleString("es-MX");
+
+// Selector de vaca: ordenado de más a menos minutos altos
+const orden = D.vacas.map((v, i) => i).sort((a, b) => D.minutos[b] - D.minutos[a]);
+const sel = document.getElementById("vaca");
+orden.forEach(i => sel.add(new Option(`${D.vacas[i]} · ${fmt(D.minutos[i])} min altos`, D.vacas[i])));
+sel.value = D.vaca_inicial;
+sel.addEventListener("change", () => dibujar(sel.value));
+
+document.getElementById("contexto").innerHTML =
+  `El grupo en general está bien: temperatura mediana <b>${D.kpi.temp_mediana} °C</b> · solo <b>${D.kpi.pct_alto} %</b> de los minutos llegó a 39.2 °C · ` +
+  `<b>${D.kpi.echada_mediana} h</b> echadas al día · <b>${D.kpi.atipicos}</b> días atípicos de descanso`;
+
+function dibujar(vaca) {
+  const i = D.vacas.indexOf(vaca);
+  const min = D.minutos[i], horas = D.por_hora[i];
+  const tarde = horas[18] + horas[19] + horas[20];
+  const pctTarde = min ? Math.round(100 * tarde / min) : 0;
+  const segunda = orden.find(j => j !== i);
+  const veces = D.minutos[segunda] ? (min / D.minutos[segunda]) : 0;
+
+  // ---------- 1. número grande ----------
+  document.getElementById("h-vaca").textContent = `Vaca ${vaca}`;
+  document.getElementById("h-num").innerHTML = `${fmt(min)} <small>min</small>`;
+  let det = `arriba de 39.2 °C, en <b>${D.dias[i]} de ${D.n_dias} días</b>.`;
+  if (i === orden[0]) det += ` Casi ${veces.toFixed(1).replace(".0", "")} veces más que la siguiente (${D.vacas[segunda]}, ${D.minutos[segunda]} min).`;
+  else det += ` La que más tiene es ${D.vacas[orden[0]]} con ${fmt(D.minutos[orden[0]])} min.`;
+  document.getElementById("h-det").innerHTML = det;
+  document.getElementById("h-acc").innerHTML = min === 0 ? "Sin minutos altos en el periodo." :
+    (pctTarde >= 50 ? `<b>${pctTarde} %</b> de esos minutos fueron entre 18:00 y 20:59 h: revisarla al atardecer, no en la mañana.`
+                    : `Solo ${pctTarde} % de esos minutos fueron entre 18:00 y 20:59 h.`);
+
+  // ---------- 1b. ranking ----------
+  const idx = orden.slice().reverse();          // la mayor arriba
+  Plotly.react("g-ranking", [{
+    type: "bar", orientation: "h", x: idx.map(j => D.minutos[j]), y: idx.map(j => D.vacas[j]),
+    marker: { color: idx.map(j => j === i ? C.naranja : C.gris_claro) },
+    text: idx.map(j => j === i || j === orden[0] ? fmt(D.minutos[j]) : ""), textposition: "outside",
+    textfont: { color: C.tinta }, cliponaxis: false,
+    customdata: idx.map(j => D.dias[j]),
+    hovertemplate: "<b>%{y}</b>: %{x} min altos en %{customdata} días<extra></extra>"
+  }], Object.assign({}, BASE, {
+    height: 300, margin: { l: 44, r: 40, t: 6, b: 30 }, bargap: 0.25,
+    xaxis: ejes({ title: { text: "minutos", font: { color: C.tenue, size: 11 } } }),
+    yaxis: ejes({ gridcolor: "rgba(0,0,0,0)", linecolor: "rgba(0,0,0,0)", tickfont: { color: C.tinta, size: 13 } })
+  }), CONFIG);
+
+  // ---------- 2. por hora del día ----------
+  document.getElementById("t-hora").textContent = `¿A qué hora se calienta ${vaca}?`;
+  const h = [...Array(24).keys()];
+  const pico = D.thi_hora.indexOf(Math.max(...D.thi_hora));
+  Plotly.react("g-hora", [
+    { type: "bar", x: h, y: horas, xaxis: "x", yaxis: "y",
+      marker: { color: h.map(k => k >= 18 && k <= 20 ? C.naranja : C.gris) },
+      hovertemplate: `${vaca}, %{x}:00 h: %{y} min altos<extra></extra>` },
+    { type: "scatter", mode: "lines", x: h, y: D.thi_hora, xaxis: "x", yaxis: "y2",
+      line: { color: C.gris, width: 2 }, hovertemplate: "%{x}:00 h · THI promedio %{y}<extra></extra>" }
+  ], Object.assign({}, BASE, {
+    height: 330, margin: { l: 50, r: 16, t: 10, b: 36 }, showlegend: false, bargap: 0.15,
+    xaxis: ejes({ domain: [0, 1], anchor: "y2", tickvals: [0, 3, 6, 9, 12, 15, 18, 21],
+                  ticktext: ["0 h", "3 h", "6 h", "9 h", "12 h", "15 h", "18 h", "21 h"], range: [-0.6, 23.6] }),
+    yaxis: ejes({ domain: [0.42, 1], anchor: "x", rangemode: "tozero", range: [0, Math.max(...horas, 1) * 1.18], title: { text: "min altos", font: { color: C.tenue, size: 11 } } }),
+    yaxis2: ejes({ domain: [0, 0.3], anchor: "x", title: { text: "THI", font: { color: C.tenue, size: 11 } } }),
+    annotations: [
+      { x: pico, y: D.thi_hora[pico], xref: "x", yref: "y2", text: `más calor: ${pico}:00 h`, showarrow: true,
+        arrowcolor: C.tenue, ax: -50, ay: -14, font: { size: 11, color: C.tenue } },
+      { x: 19, y: Math.max(...horas), xref: "x", yref: "y", yanchor: "bottom", text: "18:00–20:59 h", showarrow: false,
+        font: { size: 11, color: C.naranja } }
+    ]
+  }), CONFIG);
+
+  // ---------- 3. descanso contra calor ----------
+  const E = D.echada, t = D.tendencia;
+  const es = E.vaca.map(v => v === vaca);
+  document.getElementById("n-echada").textContent =
+    `Cada punto es una vaca en un día. Por cada punto de THI, en promedio ${Math.abs(t.pendiente).toFixed(2)} h menos echadas (relación débil, r = ${t.r}).`;
+  const puntos = (cond, color, nombre, tam) => ({
+    type: "scatter", mode: "markers", name: nombre,
+    x: E.thi.filter((_, k) => cond(k)), y: E.horas.filter((_, k) => cond(k)),
+    customdata: E.fecha.filter((_, k) => cond(k)).map((f, k) => [f, E.vaca.filter((_, m) => cond(m))[k]]),
+    marker: { color, size: tam, line: { color: "#fff", width: 1 } },
+    hovertemplate: "%{customdata[1]}, %{customdata[0]}: %{y} h echada · THI %{x}<extra></extra>"
+  });
+  Plotly.react("g-echada", [
+    puntos(k => !es[k], C.gris_claro, "otras", 7),
+    { type: "scatter", mode: "lines", x: t.x, y: t.x.map(x => t.corte + t.pendiente * x),
+      line: { color: C.gris, width: 2 }, hoverinfo: "skip", name: "tendencia" },
+    puntos(k => es[k], C.naranja, vaca, 9)
+  ], Object.assign({}, BASE, {
+    height: 300, margin: { l: 44, r: 10, t: 10, b: 40 }, showlegend: false,
+    xaxis: ejes({ title: { text: "THI promedio del día", font: { color: C.tenue, size: 11 } } }),
+    yaxis: ejes({ title: { text: "horas echada", font: { color: C.tenue, size: 11 } } })
+  }), CONFIG);
+
+  // ---------- 4. serie completa (detalle) ----------
+  const S = D.serie[vaca], T = D.serie_t;
+  document.getElementById("t-serie").textContent = `Detalle para el veterinario: ${vaca} contra las otras 9 vacas`;
+  Plotly.react("g-serie", [
+    { x: T, y: S.min, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
+    { x: T, y: S.max, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: "#e3e8ee",
+      hoverinfo: "skip", name: "rango otras 9" },
+    { x: T, y: S.med, mode: "lines", line: { color: "#8a8a8a", width: 1 }, name: "mediana otras 9",
+      hovertemplate: "mediana otras 9: %{y:.2f} °C<extra></extra>" },
+    { x: T, y: S.vaca, mode: "lines", line: { color: C.naranja, width: 2 }, name: vaca,
+      customdata: S.vaca.map((v, k) => [v === null || S.med[k] === null ? null : v - S.med[k], D.serie_thi[k]]),
+      hovertemplate: `<b>${vaca}</b>: %{y:.2f} °C · %{customdata[0]:+.2f} vs. grupo · THI %{customdata[1]}<extra></extra>` }
+  ], Object.assign({}, BASE, {
+    height: 340, margin: { l: 50, r: 16, t: 34, b: 30 }, hovermode: "x unified",
+    legend: { orientation: "h", x: 0, y: 1.12, font: { size: 11, color: C.tenue } },
+    xaxis: ejes({ type: "date", hoverformat: "%d/%m %H:%M", tickformat: "%d/%m",
+      rangeselector: { x: 1, xanchor: "right", y: 1.12, bgcolor: "#f0f0f0", activecolor: "#d6d6d6",
+        buttons: [{ count: 1, label: "1 día", step: "day", stepmode: "backward" },
+                  { count: 3, label: "3 días", step: "day", stepmode: "backward" },
+                  { step: "all", label: "Todo" }] } }),
+    yaxis: ejes({ title: { text: "°C", font: { color: C.tenue, size: 11 } }, range: [37.85, 39.5] }),
+    shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: D.umbral, y1: D.umbral,
+               line: { color: C.azul, width: 1.2, dash: "dash" } }],
+    annotations: [{ xref: "paper", x: 0, y: D.umbral, yanchor: "bottom", xanchor: "left", showarrow: false,
+                    text: `${D.umbral} °C`, font: { size: 11, color: C.azul } }]
+  }), CONFIG);
+}
+
+dibujar(D.vaca_inicial);
+// Clic en una barra del ranking = seleccionar esa vaca
+document.getElementById("g-ranking").on("plotly_click", (e) => { sel.value = e.points[0].y; dibujar(sel.value); });
+</script>
+</body>
+</html>
